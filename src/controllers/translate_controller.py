@@ -11,44 +11,45 @@ DEFAULT_TRANSLATE_FROM = "pt"
 DEFAULT_TRANSLATE_TO = "en"
 DEFAULT_TRANSLATED = "Tradução"
 
-# Reqs. 4 e 5
-@translate_controller.route("/", methods=["GET", "POST"])
-def index():
-    languages = LanguageModel.list_dicts()
 
-    if request.method == "POST":
-        text_to_translate = request.form.get("text-to-translate")
-        translate_from = request.form.get("translate-from")
-        translate_to = request.form.get("translate-to")
+def post_translate(languages, text_to_translate, translate_from, translate_to, reversed):
+    try:
+        translator = GoogleTranslator(source=translate_from, target=translate_to)
+        translated = translator.translate(text_to_translate)
+        if reversed:
+            translate_from, translate_to = translate_to, translate_from
 
-        try:
-            translator = GoogleTranslator(source=translate_from, target=translate_to)
-            translated = translator.translate(text_to_translate)
-
-        except Exception as e:
-            # Lida com possíveis erros na tradução, por exemplo, se o serviço não estiver disponível
-            return render_template(
-                "index.html",
-                languages=languages,
-                text_to_translate=text_to_translate,
-                translate_from=translate_from,
-                translate_to=translate_to,
-                translated="Erro na tradução: " + str(e)
-            )
-
+    except Exception as e:
         return render_template(
             "index.html",
             languages=languages,
             text_to_translate=text_to_translate,
             translate_from=translate_from,
             translate_to=translate_to,
-            translated=translated
+            translated="Erro na tradução: " + str(e)
         )
 
-    text_to_translate = "O que deseja traduzir"
-    translate_from = "pt"
-    translate_to = "en"
-    translated = "Tradução"
+    return render_template(
+        "index.html",
+        languages=languages,
+        text_to_translate=text_to_translate,
+        translate_from=translate_from,
+        translate_to=translate_to,
+        translated=translated
+    )
+
+# Reqs. 4 e 5
+@translate_controller.route("/", methods=["GET", "POST"])
+def index():
+    languages = LanguageModel.list_dicts()
+    reversed = False
+
+    if request.method == "POST":
+        text_to_translate = request.form.get("text-to-translate")
+        translate_from = request.form.get("translate-from")
+        translate_to = request.form.get("translate-to")
+
+        return post_translate(languages, text_to_translate, translate_from, translate_to, reversed)
 
     return render_template(
             "index.html",
@@ -63,4 +64,11 @@ def index():
 # Req. 6
 @translate_controller.route("/reverse", methods=["POST"])
 def reverse():
-    raise NotImplementedError
+    languages = LanguageModel.list_dicts()
+    reversed = True
+
+    text_to_translate = request.form.get("text-to-translate")
+    translate_from = request.form.get("translate-from")
+    translate_to = request.form.get("translate-to")
+
+    return post_translate(languages, text_to_translate, translate_from, translate_to, reversed)
