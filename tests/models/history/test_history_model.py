@@ -1,5 +1,4 @@
 import json
-import pytest
 from src.models.history_model import HistoryModel
 
 
@@ -16,6 +15,7 @@ data = [
         }
     ]
 
+
 # Req. 7
 def test_request_history():
     response = HistoryModel.list_as_json()
@@ -23,6 +23,5 @@ def test_request_history():
 
     for item in response:
         item.pop("_id")
-    # response = [{"text_to_translate": item["text_to_translate"], "translate_from": item["translate_from"], "translate_to": item["translate_to"]} for item in response]
-
+    
     assert response == data

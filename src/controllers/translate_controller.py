@@ -12,9 +12,15 @@ DEFAULT_TRANSLATE_TO = "en"
 DEFAULT_TRANSLATED = "Tradução"
 
 
-def post_translate(languages, text_to_translate, translate_from, translate_to, reversed):
+def post_translate(
+        languages,
+        text_to_translate,
+        translate_from,
+        translate_to,
+        reversed):
     try:
-        translator = GoogleTranslator(source=translate_from, target=translate_to)
+        translator = GoogleTranslator(
+            source=translate_from, target=translate_to)
         translated = translator.translate(text_to_translate)
         if reversed:
             translate_from, translate_to = translate_to, translate_from
@@ -31,10 +37,10 @@ def post_translate(languages, text_to_translate, translate_from, translate_to, r
 
     HistoryModel(
         {
-            "text_to_translate":text_to_translate,
-            "translate_from":translate_from,
-            "translate_to":translate_to,
-            "translated":translated
+            "text_to_translate": text_to_translate,
+            "translate_from": translate_from,
+            "translate_to": translate_to,
+            "translated": translated
         }
     ).save()
 
@@ -47,6 +53,7 @@ def post_translate(languages, text_to_translate, translate_from, translate_to, r
         translated=translated
     )
 
+
 # Reqs. 4 e 5
 @translate_controller.route("/", methods=["GET", "POST"])
 def index():
@@ -58,7 +65,11 @@ def index():
         translate_from = request.form.get("translate-from")
         translate_to = request.form.get("translate-to")
 
-        return post_translate(languages, text_to_translate, translate_from, translate_to, reversed)
+        return post_translate(
+            languages,
+            text_to_translate,
+            translate_from,
+            translate_to, reversed)
 
     return render_template(
             "index.html",
@@ -80,4 +91,9 @@ def reverse():
     translate_from = request.form.get("translate-from")
     translate_to = request.form.get("translate-to")
 
-    return post_translate(languages, text_to_translate, translate_from, translate_to, reversed)
+    return post_translate(
+        languages,
+        text_to_translate,
+        translate_from,
+        translate_to,
+        reversed)
