@@ -23,5 +23,5 @@ def test_request_history():
 
     for item in response:
         item.pop("_id")
-    
+
     assert response == data
